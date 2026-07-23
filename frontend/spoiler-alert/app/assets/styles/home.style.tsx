@@ -112,7 +112,8 @@ export const displayDateStyles = () => {
             alignItems: "flex-start",
         },
         date: {
-            ...type.subhead,
+            fontSize: 19,
+            fontWeight: "600",
             color: colors.textSecondary,
         },
     });
@@ -126,16 +127,21 @@ export const homePageStyles = () => {
       backgroundColor: colors.background,
     },
 
-    // Today dashboard card
-    todayLabel: {
-      fontSize: 22,
+    // Page header — the Home page's "large title", the primary focal point
+    pageHeader: {
+      gap: 6,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.xs,
+    },
+    pageTitle: {
+      fontSize: 42,
       fontWeight: "800",
       color: colors.primary,
+      letterSpacing: -0.5,
     },
     statsRow: {
       flexDirection: "row",
       gap: spacing.md,
-      marginTop: spacing.lg,
     },
     statTile: {
       flex: 1,
@@ -167,15 +173,14 @@ export const homePageStyles = () => {
       color: colors.textPrimary,
       flexShrink: 1,
     },
-    sectionDivider: {
-      height: 1,
-      backgroundColor: colors.border,
-      marginVertical: spacing.lg,
+    chartCard: {
+      alignItems: "center",
     },
     chartLabel: {
       ...type.caption,
       color: colors.textTertiary,
-      marginBottom: spacing.sm,
+      marginBottom: spacing.md,
+      alignSelf: "flex-start",
     },
 
     // Safe / Expired carousels
