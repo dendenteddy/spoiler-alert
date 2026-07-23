@@ -1,10 +1,12 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from google import genai
 from google.genai import types
 
-load_dotenv()
+env_path = Path(__file__).resolve().parent.parent.parent / '.env'
+load_dotenv(dotenv_path=env_path, override=True)
 
 router = APIRouter(
     prefix="/gemini",
@@ -30,7 +32,7 @@ async def get_expiration_date(file: UploadFile = File(...)):
         client = genai.Client(api_key=api_key)
 
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-flash-latest",
             contents=[
                 types.Part.from_bytes(
                     data=image_bytes,
