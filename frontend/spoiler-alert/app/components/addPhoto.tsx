@@ -1,16 +1,28 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState, useRef } from "react";
+import { useState, useRef, forwardRef, useImperativeHandle } from "react";
 import { ActivityIndicator, Modal, Text, TouchableOpacity, View, Image, StyleSheet } from "react-native";
 import { ApiError, identifyProduct, IdentifiedProduct } from "../lib/api";
 import ScannedItemCard from "./scannedItemCard";
 import { Button, IconButton } from "./ui";
 import { colors, radius, shadow, spacing, type } from "../constants/theme";
 
-const AddPhoto = () => {
+export type AddPhotoHandle = {
+    open: () => void;
+};
+
+type Props = {
+    hideTrigger?: boolean;
+};
+
+const AddPhoto = forwardRef<AddPhotoHandle, Props>(({ hideTrigger }, ref) => {
     // Setting up Camera
     const [isCameraVisible, setVisible] = useState(false);
     const [facing, setFacing] = useState<CameraType>('back');
     const [permission, requestPermission] = useCameraPermissions();
+
+    useImperativeHandle(ref, () => ({
+        open: () => setVisible(true),
+    }));
 
     const toggleCameraFacing = () => {
         setFacing(current => (current === 'back' ? 'front' : 'back'));
@@ -93,7 +105,7 @@ const AddPhoto = () => {
 
     return (
         <View>
-            <Button title="+ Scan Item" onPress={() => setVisible(true)} />
+            {!hideTrigger && <Button title="+ Scan Item" onPress={() => setVisible(true)} />}
 
             <Modal
                 id="modal scan item"
@@ -180,7 +192,9 @@ const AddPhoto = () => {
         </View>
     );
 
-}
+});
+
+AddPhoto.displayName = "AddPhoto";
 
 const styles = StyleSheet.create({
     flex: {

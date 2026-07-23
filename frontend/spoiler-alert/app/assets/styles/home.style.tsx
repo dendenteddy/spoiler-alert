@@ -124,41 +124,61 @@ export const homePageStyles = () => {
     container: {
       flex: 1,
       backgroundColor: colors.background,
-      paddingTop: 64,
-      paddingHorizontal: spacing.xl,
     },
-    welcomeMsg: {
+
+    // Today dashboard card
+    todayLabel: {
+      fontSize: 22,
+      fontWeight: "800",
+      color: colors.primary,
+    },
+    statsRow: {
+      flexDirection: "row",
+      gap: spacing.md,
+      marginTop: spacing.lg,
+    },
+    statTile: {
+      flex: 1,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      gap: 4,
+    },
+    statLabel: {
+      ...type.footnote,
+      color: colors.textSecondary,
+    },
+    statValue: {
+      fontSize: 28,
+      fontWeight: "800",
+      color: colors.textPrimary,
+    },
+    nearRow: {
       flexDirection: "row",
       alignItems: "center",
-      gap: spacing.md,
-      marginBottom: spacing.xs,
+      gap: spacing.sm,
+      marginTop: spacing.md,
+      backgroundColor: colors.warningSurface,
+      padding: spacing.md,
+      borderRadius: radius.md,
     },
-    brandMark: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-    },
-    welcomeMsgText: {
-      ...type.title1,
+    nearText: {
+      ...type.subhead,
       color: colors.textPrimary,
       flexShrink: 1,
     },
-    dateContainer: {
-      marginBottom: spacing.xxl,
+    sectionDivider: {
+      height: 1,
+      backgroundColor: colors.border,
+      marginVertical: spacing.lg,
+    },
+    chartLabel: {
+      ...type.caption,
+      color: colors.textTertiary,
+      marginBottom: spacing.sm,
     },
 
-    // Wrapper for all items
-    itemWrapper: {
-      gap: spacing.lg,
-    },
-
-    // For each category
-    itemContainer: {
-      backgroundColor: colors.surface,
-      borderRadius: radius.lg,
-      padding: spacing.lg,
-      ...shadow.sm,
-    },
+    // Safe / Expired carousels
     itemHeader: {
       flexDirection: "row",
       alignItems: "center",
@@ -179,15 +199,21 @@ export const homePageStyles = () => {
       color: colors.textTertiary,
       paddingVertical: spacing.md,
     },
-    itemContentContainer: {
-      flexDirection: "row",
-    },
     itemTile: {
       width: 168,
       marginRight: spacing.md,
       padding: spacing.md,
       borderRadius: radius.md,
       gap: spacing.xs,
+    },
+    itemTileIconWrap: {
+      width: 28,
+      height: 28,
+      borderRadius: 10,
+      backgroundColor: "rgba(255, 255, 255, 0.6)",
+      justifyContent: "center",
+      alignItems: "center",
+      marginBottom: 2,
     },
     itemName: {
       ...type.bodyMedium,
@@ -197,16 +223,90 @@ export const homePageStyles = () => {
       ...type.footnote,
       color: colors.textSecondary,
     },
-    bottomButtonWrapper: {
-      flexDirection: "column",
-      alignItems: "center",
-      width: "100%",
+
+    // Recipe suggestion card
+    recipeRow: {
+      flexDirection: "row",
       gap: spacing.md,
-      paddingTop: spacing.xxl,
-      paddingBottom: spacing.lg,
     },
-    bottomButton: {
-      width: "100%",
+    recipeImagePlaceholder: {
+      width: 72,
+      height: 72,
+      borderRadius: radius.md,
+      backgroundColor: colors.primarySurface,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    recipeTextBlock: {
+      flex: 1,
+      gap: 4,
+      justifyContent: "center",
+    },
+    recipeTitle: {
+      ...type.title3,
+      color: colors.textPrimary,
+    },
+    recipeDescription: {
+      ...type.footnote,
+      color: colors.textSecondary,
+    },
+    recipeCta: {
+      marginTop: spacing.lg,
+    },
+
+    // Bottom CTA
+    expiredCta: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: spacing.sm,
+      backgroundColor: colors.dangerSurface,
+      borderWidth: 1.5,
+      borderColor: colors.danger,
+      borderRadius: radius.pill,
+      paddingVertical: spacing.md,
+    },
+    expiredCtaText: {
+      ...type.bodyMedium,
+      color: colors.danger,
+      fontWeight: "700",
+    },
+
+    // Floating action button
+    fabWrapper: {
+      position: "absolute",
+      bottom: spacing.xxl,
+      right: spacing.xl,
+    },
+    fab: {
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      backgroundColor: colors.primary,
+      justifyContent: "center",
+      alignItems: "center",
+      ...shadow.lg,
+    },
+
+    // Custom action-sheet fallback (Android/web)
+    sheetOverlay: {
+      flex: 1,
+      justifyContent: "flex-end",
+      backgroundColor: colors.overlay,
+    },
+    sheetContent: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: radius.xxl,
+      borderTopRightRadius: radius.xxl,
+      padding: spacing.xl,
+      paddingBottom: spacing.xxxl,
+      gap: spacing.md,
+    },
+    sheetTitle: {
+      ...type.headline,
+      color: colors.textSecondary,
+      textAlign: "center",
+      marginBottom: spacing.sm,
     },
   });
 

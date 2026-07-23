@@ -1,13 +1,21 @@
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import { useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import { Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { componentStyles } from "../assets/styles/add.item.style";
 import { Button } from "./ui";
 import { colors } from "../constants/theme";
 
-const AddItem = () => {
+export type AddItemHandle = {
+    open: () => void;
+};
+
+type Props = {
+    hideTrigger?: boolean;
+};
+
+const AddItem = forwardRef<AddItemHandle, Props>(({ hideTrigger }, ref) => {
     const styles = componentStyles();
 
     const [isModalVisible, setVisible] = useState(false);
@@ -16,6 +24,10 @@ const AddItem = () => {
         category: "Fruits and Vegetables",
         date: ""
     });
+
+    useImperativeHandle(ref, () => ({
+        open: () => setVisible(true),
+    }));
 
     const [newDate, setDate] = useState(new Date());
     const [dateText, setDateText] = useState("Select Date")
@@ -53,7 +65,7 @@ const AddItem = () => {
 
     return (
         <View>
-            <Button title="+ Add Item" onPress={() => setVisible(true)} />
+            {!hideTrigger && <Button title="+ Add Item" onPress={() => setVisible(true)} />}
 
             <Modal
                 id="modal add item"
@@ -116,6 +128,8 @@ const AddItem = () => {
 
         </View>
     )
-}
+});
+
+AddItem.displayName = "AddItem";
 
 export default AddItem
