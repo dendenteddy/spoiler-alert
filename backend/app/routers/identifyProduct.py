@@ -2,12 +2,17 @@ import logging
 import os
 import requests
 from typing import Optional
+from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from google import genai
 from google.genai import types
 
-load_dotenv()
+env_path = Path(__file__).resolve().parent.parent.parent / '.env'
+load_dotenv(dotenv_path=env_path, override=True)
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("identify_product")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("identify_product")
@@ -75,7 +80,7 @@ def identify_with_gemini(image_bytes: bytes, mime_type: str):
     client = genai.Client(api_key=api_key)
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-flash-latest",
         contents=[
             types.Part.from_bytes(
                 data=image_bytes,

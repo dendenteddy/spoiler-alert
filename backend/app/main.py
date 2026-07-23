@@ -3,7 +3,7 @@ from fastapi.params import Body
 from pydantic import BaseModel
 from typing import Optional
 import datetime
-from .routers import profiles, items, identifyProduct, gemini, openfoodfacts
+from .routers import profiles, items, identifyProduct, gemini, openfoodfacts, recipes
 from . import database
 
 app = FastAPI()
@@ -11,6 +11,7 @@ app = FastAPI()
 app.include_router(items.router)
 app.include_router(profiles.router)
 app.include_router(identifyProduct.router)
+app.include_router(recipes.router)
 # app.include_router(gemini.router)
 # app.include_router(openfoodfacts.router)
  
