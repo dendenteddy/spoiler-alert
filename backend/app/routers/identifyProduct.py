@@ -2,12 +2,14 @@ import logging
 import os
 import requests
 from typing import Optional
+from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from google import genai
 from google.genai import types
 
-load_dotenv()
+env_path = Path(__file__).resolve().parent.parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("identify_product")
