@@ -39,7 +39,13 @@
           }
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Spoiler Alert to access your camera to scan barcodes and photograph items."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

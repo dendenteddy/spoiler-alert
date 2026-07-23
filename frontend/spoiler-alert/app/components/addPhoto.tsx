@@ -1,8 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useState, useRef } from "react";
-import { Button, Modal, Text, TextInput, TouchableOpacity, View, Image } from "react-native";
+import { ActivityIndicator, Button, Modal, Text, TouchableOpacity, View, Image } from "react-native";
 import { buttonItemStyles } from "../assets/styles/home.style";
+import { ApiError, identifyProduct, IdentifiedProduct } from "../lib/api";
+import ScannedItemCard from "./scannedItemCard";
 
 const AddPhoto = () => {
     const styles = buttonItemStyles();
@@ -41,39 +43,54 @@ const AddPhoto = () => {
 
     // Barcode Scanning
     const [scanned, setScanned] = useState(false);
-    const [scannedProduct, setScannedProduct] = useState<any>(null);
+    const [looking, setLooking] = useState(false);
+    const [lookupError, setLookupError] = useState<string | null>(null);
+    const [scannedProduct, setScannedProduct] = useState<IdentifiedProduct | null>(null);
+    const [isCardVisible, setCardVisible] = useState(false);
 
     const lookupProduct = async (barcode: string) => {
+        setLooking(true);
+        setLookupError(null);
         try {
-            const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
-            const json = await res.json();
-
-            if (json.status === 1) {
-                const product = json.product;
-                setScannedProduct({
-                    barcode,
-                    name: product.product_name || "Unknown item",
-                    category: product.categories || "",
-                    imageUrl: product.image_url || null,
-                });
-                // TODO: insert into Supabase products table here
-            } else {
-                setScannedProduct({ barcode, name: "Not found", category: "", imageUrl: null });
-            }
+            const product = await identifyProduct(barcode);
+            setScannedProduct(product);
+            setCardVisible(true);
+            setVisible(false);
         } catch (err) {
-            console.error("Open Food Facts lookup failed:", err);
+            console.error("Product identification failed:", err);
+            if (err instanceof ApiError && err.status === 404) {
+                setLookupError(`No Open Food Facts match for barcode ${barcode}.`);
+            } else if (err instanceof ApiError) {
+                setLookupError(`Lookup failed (${err.status}): ${err.message}`);
+            } else {
+                setLookupError(`Couldn't reach the server: ${err instanceof Error ? err.message : String(err)}`);
+            }
+        } finally {
+            setLooking(false);
         }
     }
 
     const handleBarcodeScanned = ({ data }: { data: string }) => {
-        if (scanned) return;
+        if (scanned || looking) return;
         setScanned(true);
         lookupProduct(data);
     }
 
     const resetScanner = () => {
         setScanned(false);
+        setLookupError(null);
+    }
+
+    const handleCardClose = () => {
+        setCardVisible(false);
         setScannedProduct(null);
+        resetScanner();
+    }
+
+    const handleCardSaved = () => {
+        setCardVisible(false);
+        setScannedProduct(null);
+        resetScanner();
     }
         
     return (
@@ -102,15 +119,21 @@ const AddPhoto = () => {
                                 style={styles.cameraView}
                                 facing={facing}
                                 ref={cameraRef}
+                                autofocus="on"
                                 barcodeScannerSettings={{
-                                    barcodeTypes: ["ean13", "ean8", "upc_a", "upc_e"],
+                                    barcodeTypes: ["ean13", "ean8", "upc_a", "upc_e", "code128", "qr"],
                                 }}
                                 onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
                             />
-                            {scannedProduct && (
+                            {looking && (
+                                <View style={{ position: 'absolute', bottom: 100, left: 20, right: 20, backgroundColor: 'white', padding: 16, borderRadius: 10, alignItems: 'center' }}>
+                                    <ActivityIndicator />
+                                    <Text style={{ marginTop: 8 }}>Looking up product...</Text>
+                                </View>
+                            )}
+                            {lookupError && (
                                 <View style={{ position: 'absolute', bottom: 100, left: 20, right: 20, backgroundColor: 'white', padding: 12, borderRadius: 10 }}>
-                                    <Text style={{ fontWeight: 'bold' }}>{scannedProduct.name}</Text>
-                                    <Text>{scannedProduct.category}</Text>
+                                    <Text style={{ color: '#c0392b' }}>{lookupError}</Text>
                                     <TouchableOpacity onPress={resetScanner} style={{ marginTop: 8 }}>
                                         <Text style={{ color: 'blue' }}>Scan Again</Text>
                                     </TouchableOpacity>
@@ -170,6 +193,13 @@ const AddPhoto = () => {
 
                 </View>
             </Modal>
+
+            <ScannedItemCard
+                visible={isCardVisible}
+                product={scannedProduct}
+                onClose={handleCardClose}
+                onSaved={handleCardSaved}
+            />
 
         </View>
     );
