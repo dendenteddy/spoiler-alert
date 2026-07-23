@@ -1,3 +1,4 @@
+import logging
 import os
 import requests
 from typing import Optional
@@ -7,6 +8,9 @@ from google import genai
 from google.genai import types
 
 load_dotenv()
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("identify_product")
 
 router = APIRouter(
     prefix="/food",
@@ -23,15 +27,21 @@ def search_open_food_facts(barcode: str):
 
     try:
         response = requests.get(url, headers=headers, timeout=15)
-    except requests.RequestException:
+    except requests.RequestException as e:
+        logger.warning("Open Food Facts request failed for barcode %s: %s", barcode, e)
         return None
 
     if response.status_code != 200:
+        logger.warning(
+            "Open Food Facts returned status %s for barcode %s: %s",
+            response.status_code, barcode, response.text[:200]
+        )
         return None
 
     data = response.json()
 
     if data.get("status") != 1:
+        logger.info("Open Food Facts has no product for barcode %s", barcode)
         return None
 
     product = data.get("product", {})
@@ -89,6 +99,8 @@ async def identify_product(
     barcode: Optional[str] = Form(None),
     file: Optional[UploadFile] = File(None)
 ):
+    logger.info("Received identify request: barcode=%r, file=%r", barcode, file.filename if file else None)
+
     # 1. Try Open Food Facts first
     if barcode:
         off_result = search_open_food_facts(barcode)
