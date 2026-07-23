@@ -41,8 +41,9 @@ const WelcomeScreen = ({ onSkip }: Props) => {
             >
                 <View style={styles.hero}>
                     <Image
-                        source={require("../../assets/branding/Round circle icon.png")}
+                        source={require("../../assets/branding/shortened-icon-transparent.png")}
                         style={styles.logo}
+                        resizeMode="contain"
                     />
                     <Text style={styles.tagline}>Don&apos;t let good food go bad.</Text>
                 </View>
@@ -120,18 +121,13 @@ const styles = StyleSheet.create({
         marginBottom: spacing.huge,
     },
     logo: {
-        width: 132,
-        height: 132,
-        borderRadius: 66,
-        shadowColor: colors.primaryDark,
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.25,
-        shadowRadius: 20,
-        elevation: 8,
-        marginBottom: spacing.xl,
+        width: 128,
+        height: 246,
+        marginBottom: spacing.lg,
     },
     tagline: {
-        ...type.headline,
+        fontSize: 20,
+        fontWeight: "600",
         color: colors.textSecondary,
         textAlign: "center",
     },
@@ -168,6 +164,7 @@ const styles = StyleSheet.create({
     skipText: {
         ...type.bodyMedium,
         color: colors.textTertiary,
+        textDecorationLine: "underline",
     },
 });
 

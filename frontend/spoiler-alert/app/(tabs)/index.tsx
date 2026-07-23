@@ -1,4 +1,4 @@
-import { FlatList, Text, View } from 'react-native';
+import { FlatList, Image, Text, View } from 'react-native';
 import { homePageStyles } from '../assets/styles/home.style';
 import { statusColors } from '../constants/theme';
 import AddItem from '../components/addItem';
@@ -30,6 +30,10 @@ const Home = () => {
   return (
     <View style={styles.container}>
       <View style={styles.welcomeMsg}>
+        <Image
+          source={require('../../assets/branding/round-circle-icon.png')}
+          style={styles.brandMark}
+        />
         <Text style={styles.welcomeMsgText}>Welcome back, Username!</Text>
       </View>
 

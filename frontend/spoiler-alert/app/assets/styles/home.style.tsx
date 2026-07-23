@@ -128,11 +128,20 @@ export const homePageStyles = () => {
       paddingHorizontal: spacing.xl,
     },
     welcomeMsg: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.md,
       marginBottom: spacing.xs,
+    },
+    brandMark: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
     },
     welcomeMsgText: {
       ...type.title1,
       color: colors.textPrimary,
+      flexShrink: 1,
     },
     dateContainer: {
       marginBottom: spacing.xxl,

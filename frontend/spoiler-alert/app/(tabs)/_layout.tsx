@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
+import { Image } from "react-native";
 import { colors } from "../constants/theme";
 
 type IoniconName = keyof typeof Ionicons.glyphMap;
@@ -16,6 +17,13 @@ const TabIcon = ({
   filled: IoniconName;
   color: string;
 }) => <Ionicons name={focused ? filled : outline} size={24} color={color} />;
+
+const BrandTabIcon = ({ focused }: { focused: boolean }) => (
+  <Image
+    source={require("../../assets/branding/round-circle-icon.png")}
+    style={{ width: 26, height: 26, borderRadius: 13, opacity: focused ? 1 : 0.45 }}
+  />
+);
 
 const TabsLayout = () => {
   return (
@@ -71,9 +79,7 @@ const TabsLayout = () => {
         name="settings"
         options={{
           title: "Settings",
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon focused={focused} outline="person-outline" filled="person" color={color} />
-          ),
+          tabBarIcon: ({ focused }) => <BrandTabIcon focused={focused} />,
         }}
       />
     </Tabs>
