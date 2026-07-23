@@ -3,16 +3,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { useState } from "react";
 import { Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
-
-//comment out whichever is needed depending on which style to pick
-//kurt's style
 import { componentStyles } from "../assets/styles/add.item.style";
-//Valerie's style
-// import { buttonItemStyles } from "../assets/styles/home.style";
-
+import { Button } from "./ui";
+import { colors } from "../constants/theme";
 
 const AddItem = () => {
-    // const styles = buttonItemStyles();
     const styles = componentStyles();
 
     const [isModalVisible, setVisible] = useState(false);
@@ -35,9 +30,8 @@ const AddItem = () => {
                 setDateText(fDate);
         }
     }
-    
+
     const foodCategories = ["Fruits and Vegetables", "Meat and Dairy", "Carbohydrates", "Others"];
-    const [itemList, setItemList] = useState([]);
 
 
     const handleSubmit = () => {
@@ -52,16 +46,14 @@ const AddItem = () => {
             category: "Fruits and Vegetables",
             date: ""
         });
-        setDate(new Date())    
+        setDate(new Date())
         setDateText("Select Date")
         setVisible(false);
     }
-        
+
     return (
         <View>
-            <TouchableOpacity style={styles.modalButton} onPress={() => setVisible(true)}>
-                <Text style={styles.buttonText}>+ Add Item</Text>
-            </TouchableOpacity>
+            <Button title="+ Add Item" onPress={() => setVisible(true)} />
 
             <Modal
                 id="modal add item"
@@ -74,9 +66,10 @@ const AddItem = () => {
                         <Text style={styles.instructionText}>Enter the item name:</Text>
                         <View style={styles.textInput}>
                             <TextInput
-                                placeholder=" E.g. Bread"
+                                placeholder="E.g. Bread"
+                                placeholderTextColor={colors.textTertiary}
                                 value={newItem.itemName}
-                                onChangeText={(e) => setNewItem({...newItem, itemName: e})} 
+                                onChangeText={(e) => setNewItem({...newItem, itemName: e})}
                             />
 
                         </View>
@@ -92,18 +85,18 @@ const AddItem = () => {
                                     <Picker.Item key={c} label={c} value={c}/>
                                 ))}
                             </Picker>
-                        </View>    
+                        </View>
 
                         <Text style={styles.instructionText}>Select the Date</Text>
                         <View style={[styles.textInput, styles.datePicker]}>
-                            <Text> {dateText}</Text>
+                            <Text>{dateText}</Text>
                             <TouchableOpacity onPress={() => setPicker(true)}>
-                                <Ionicons name="calendar-outline"/>
+                                <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
                             </TouchableOpacity>
 
                             {
                                 showPicker && (
-                                    <DateTimePicker 
+                                    <DateTimePicker
                                         mode={'date'}
                                         display={"calendar"}
                                         value={newDate || new Date()}
@@ -114,13 +107,8 @@ const AddItem = () => {
                         </View>
 
                         <View style={styles.buttonContainer}>
-                            <TouchableOpacity style={styles.button} onPress={() => handleCancel()}>
-                                <Text style={styles.buttonText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
-                                <Text style={styles.buttonText}>Submit</Text>
-                            </TouchableOpacity>
-
+                            <Button title="Cancel" variant="secondary" style={styles.button} onPress={handleCancel} />
+                            <Button title="Submit" variant="primary" style={styles.button} onPress={handleSubmit} />
                         </View>
                     </View>
                 </View>

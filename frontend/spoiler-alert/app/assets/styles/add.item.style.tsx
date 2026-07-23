@@ -1,53 +1,49 @@
-//kurt's code to style addItem.tsx
-
 import { StyleSheet } from "react-native";
+import { colors, radius, shadow, spacing, type } from "../../constants/theme";
 
 export const componentStyles = () => {
     const styles = StyleSheet.create({
         modalButton: {
-            backgroundColor: "red",
-            paddingVertical: 12,
-            paddingHorizontal: 24,
-            borderRadius: 25,
+            backgroundColor: colors.primary,
+            paddingVertical: spacing.md,
+            paddingHorizontal: spacing.xxl,
+            borderRadius: radius.pill,
             alignItems: "center",
             justifyContent: "center",
+            ...shadow.sm,
         },
         buttonText: {
-            color: "white",
-            fontWeight: "bold",
-            fontSize: 16,
+            color: colors.textInverse,
+            ...type.bodyMedium,
+            fontWeight: "700",
         },
-        modalContainer:{    
+        modalContainer: {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: 'rgba(255, 255, 255, 0.7)',
+            backgroundColor: colors.overlay,
         },
         modalContent: {
-            backgroundColor: "white",
+            backgroundColor: colors.surface,
             width: "85%",
-            borderRadius: 16,
-            padding: 20,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.25,
-            shadowRadius: 4,
-            elevation: 5,
+            borderRadius: radius.xl,
+            padding: spacing.xl,
+            ...shadow.lg,
         },
         instructionText: {
-            fontSize: 14,
-            fontWeight: "600",
-            color: "#333",
-            marginTop: 15,
-            marginBottom: 6,
+            ...type.subhead,
+            color: colors.textSecondary,
+            marginTop: spacing.lg,
+            marginBottom: spacing.sm,
         },
         textInput: {
-            borderWidth: 1,
-            borderColor: "#ccc",
-            borderRadius: 8,
-            paddingHorizontal: 10,
-            height: 45,
+            borderWidth: 1.5,
+            borderColor: colors.border,
+            borderRadius: radius.md,
+            paddingHorizontal: spacing.md,
+            height: 48,
             justifyContent: "center",
+            backgroundColor: colors.surface,
         },
         datePicker: {
             flexDirection: "row",
@@ -57,15 +53,11 @@ export const componentStyles = () => {
         buttonContainer: {
             flexDirection: "row",
             justifyContent: "space-between",
-            marginTop: 24,
+            gap: spacing.md,
+            marginTop: spacing.xxl,
         },
         button: {
             flex: 1,
-            backgroundColor: "red",
-            paddingVertical: 12,
-            borderRadius: 8,
-            alignItems: "center",
-            marginHorizontal: 6,
         },
     });
     return styles;

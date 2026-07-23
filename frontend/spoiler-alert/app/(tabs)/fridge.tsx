@@ -8,11 +8,12 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
-// Import your functional components
 import AddItem from '../components/addItem';
 import AddPhoto from '../components/addPhoto';
+import { ScreenHeader, StatusPill } from '../components/ui';
+import { colors, radius, shadow, spacing, type } from '../constants/theme';
 
 // --- Types ---
 interface FridgeItem {
@@ -32,66 +33,48 @@ interface CategoryProps {
 
 // --- Mock Data ---
 const INITIAL_DATA: Record<string, FridgeItem[]> = {
-  'FRUITS AND VEGETABLES': [
-    { id: '1', name: 'CABBAGE', expiryDate: '06/02/2026', type: 'vegetable' },
-    { id: '2', name: 'CANNED CORN', expiryDate: '20/02/2026', type: 'vegetable' },
+  'Fruits and Vegetables': [
+    { id: '1', name: 'Cabbage', expiryDate: '06/02/2026', type: 'vegetable' },
+    { id: '2', name: 'Canned Corn', expiryDate: '20/02/2026', type: 'vegetable' },
   ],
-  'MEAT AND DAIRY': [
-    { id: '3', name: 'MEIJI MILK', expiryDate: '31/01/2026', type: 'dairy', isExpiringSoon: true },
-    { id: '4', name: 'CREAM CHEESE', expiryDate: '02/02/2026', type: 'dairy', isExpiringSoon: true },
-    { id: '5', name: 'CHICKEN WINGS', expiryDate: '03/02/2026', type: 'meat', isExpiringSoon: true },
-    { id: '6', name: 'BACON', expiryDate: '20/02/2026', type: 'meat' },
+  'Meat and Dairy': [
+    { id: '3', name: 'Meiji Milk', expiryDate: '31/01/2026', type: 'dairy', isExpiringSoon: true },
+    { id: '4', name: 'Cream Cheese', expiryDate: '02/02/2026', type: 'dairy', isExpiringSoon: true },
+    { id: '5', name: 'Chicken Wings', expiryDate: '03/02/2026', type: 'meat', isExpiringSoon: true },
+    { id: '6', name: 'Bacon', expiryDate: '20/02/2026', type: 'meat' },
   ],
-  'OTHERS': [
-    { id: '7', name: 'BREAD LOAF', expiryDate: '09/02/2026', type: 'other' },
+  Others: [
+    { id: '7', name: 'Bread Loaf', expiryDate: '09/02/2026', type: 'other' },
   ],
+};
+
+const ICON_BY_TYPE: Record<FridgeItem['type'], keyof typeof Ionicons.glyphMap> = {
+  vegetable: 'leaf-outline',
+  dairy: 'water-outline',
+  meat: 'restaurant-outline',
+  grain: 'nutrition-outline',
+  other: 'nutrition-outline',
 };
 
 // --- Components ---
 
 const ItemCard = ({ item }: { item: FridgeItem }) => {
-  const getBorderColor = () => {
-    if (item.isExpiringSoon) return '#FFEBEE'; 
-    if (item.type === 'vegetable') return '#E8F5E9'; 
-    return '#E3F2FD'; 
-  };
-
-  const getIcon = () => {
-    switch (item.type) {
-      case 'vegetable': return 'leaf';
-      case 'dairy': return 'water';
-      case 'meat': return 'food-steak';
-      case 'other': return 'bread-slice';
-      default: return 'dots-horizontal';
-    }
-  };
-
-  const getIconBg = () => {
-    if (item.isExpiringSoon) return '#FFEBEE';
-    if (item.type === 'vegetable') return '#B9F6CA';
-    return '#BBDEFB';
-  };
-
-  const getIconColor = () => {
-    if (item.isExpiringSoon) return '#B71C1C';
-    if (item.type === 'vegetable') return '#1B5E20';
-    return '#0D47A1';
-  };
-
   return (
-    <View style={[styles.itemCard, { borderColor: getBorderColor() }]}>
-      <View style={[styles.iconContainer, { backgroundColor: getIconBg() }]}>
-        <MaterialCommunityIcons name={getIcon()} size={24} color={getIconColor()} />
+    <View style={styles.itemCard}>
+      <View style={styles.iconContainer}>
+        <Ionicons name={ICON_BY_TYPE[item.type]} size={20} color={colors.primary} />
       </View>
       <View style={styles.itemInfo}>
         <Text style={styles.itemName}>{item.name}</Text>
         <Text style={styles.itemExpiry}>Exp: {item.expiryDate}</Text>
       </View>
-      <MaterialCommunityIcons 
-        name={item.isExpiringSoon ? "alert-circle" : "dots-horizontal"} 
-        size={24} 
-        color={item.isExpiringSoon ? "#D32F2F" : "#757575"} 
-      />
+      {item.isExpiringSoon ? (
+        <StatusPill label="Soon" status="near" />
+      ) : (
+        <TouchableOpacity hitSlop={8}>
+          <Ionicons name="ellipsis-horizontal" size={20} color={colors.textTertiary} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -99,12 +82,8 @@ const ItemCard = ({ item }: { item: FridgeItem }) => {
 const CategorySection = ({ title, items, isOpen, onToggle }: CategoryProps) => (
   <View style={styles.categoryWrapper}>
     <TouchableOpacity style={styles.categoryHeader} onPress={onToggle} activeOpacity={0.7}>
-      <Text style={styles.categoryTitle}>{title}</Text>
-      <MaterialCommunityIcons 
-        name={isOpen ? "chevron-up" : "chevron-down"} 
-        size={24} 
-        color="#5D4037" 
-      />
+      <Text style={styles.categoryTitle}>{title.toUpperCase()}</Text>
+      <Ionicons name={isOpen ? 'chevron-up' : 'chevron-down'} size={20} color={colors.textSecondary} />
     </TouchableOpacity>
     {isOpen && (
       <View style={styles.itemsList}>
@@ -116,9 +95,9 @@ const CategorySection = ({ title, items, isOpen, onToggle }: CategoryProps) => (
 
 const Fridge = () => {
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
-    'FRUITS AND VEGETABLES': true,
-    'MEAT AND DAIRY': true,
-    'OTHERS': true,
+    'Fruits and Vegetables': true,
+    'Meat and Dairy': true,
+    Others: true,
   });
 
   const toggleCategory = (category: string) => {
@@ -128,16 +107,9 @@ const Fridge = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      
-      {/* Top App Bar */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <MaterialCommunityIcons name="fridge" size={28} color="#D35400" />
-          <Text style={styles.headerTitle}>MY FRIDGE</Text>
-        </View>
-      </View>
 
-      {/* Main Scroll Container */}
+      <ScreenHeader title="My Fridge" icon="file-tray-stacked-outline" />
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {Object.entries(INITIAL_DATA).map(([title, items]) => (
           <CategorySection
@@ -149,8 +121,7 @@ const Fridge = () => {
           />
         ))}
       </ScrollView>
-      
-      {/* Persistent Sticky Action Row at the bottom */}
+
       <View style={styles.actionRow}>
         <View style={styles.actionButtonContainer}>
           <AddItem />
@@ -166,96 +137,71 @@ const Fridge = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: 'white',
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#D35400',
-    marginLeft: 10,
-    letterSpacing: -0.5,
+    backgroundColor: colors.background,
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 16,
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.lg,
   },
   categoryWrapper: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   categoryHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    padding: 16,
-    borderRadius: 20,
+    backgroundColor: colors.surfaceAlt,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderRadius: radius.lg,
   },
   categoryTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#5D4037',
-    letterSpacing: 0.5,
+    ...type.caption,
+    color: colors.textSecondary,
   },
   itemsList: {
-    marginTop: 12,
+    marginTop: spacing.md,
+    gap: spacing.sm,
   },
   itemCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 12,
-    borderRadius: 20,
-    borderWidth: 2,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
+    backgroundColor: colors.surface,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    ...shadow.sm,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySurface,
     justifyContent: 'center',
     alignItems: 'center',
   },
   itemInfo: {
     flex: 1,
-    marginLeft: 16,
+    marginLeft: spacing.md,
   },
   itemName: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#263238',
+    ...type.bodyMedium,
+    color: colors.textPrimary,
   },
   itemExpiry: {
-    fontSize: 12,
-    color: '#757575',
+    ...type.footnote,
+    color: colors.textSecondary,
     marginTop: 2,
-    fontWeight: '600',
   },
   actionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: '#FAFAFA',
-    gap: 12,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
+    backgroundColor: colors.background,
+    gap: spacing.md,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: colors.border,
   },
   actionButtonContainer: {
     flex: 1,

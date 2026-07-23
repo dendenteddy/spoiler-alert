@@ -10,7 +10,9 @@ import {
   StatusBar,
   Animated,
 } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import { ScreenHeader } from '../components/ui';
+import { colors, radius, shadow, spacing, type } from '../constants/theme';
 
 // --- Types ---
 interface Ingredient {
@@ -24,12 +26,10 @@ interface Recipe {
   ingredients: Ingredient[];
   instructions: string[];
   imageUrl: string;
-  color: string;
 }
 
 // --- Shared Fridge Inventory Data ---
 // In a full build, this would be imported from a shared state/context file.
-// Added 'TOMATO' and 'SALT' here so you can instantly see the counter work!
 const CURRENT_FRIDGE_INVENTORY = [
   'CABBAGE',
   'CANNED CORN',
@@ -43,18 +43,17 @@ const CURRENT_FRIDGE_INVENTORY = [
 ];
 
 // --- Mock Recipes Data ---
-const RECIPES_DATA = {
+const RECIPES_DATA: Record<'nearlyExpiring' | 'mixed' | 'nonExpiring', Recipe[]> = {
   nearlyExpiring: [
     {
       id: '1',
-      title: 'RED SAUCE PASTA',
-      color: '#FFEBEE',
+      title: 'Red Sauce Pasta',
       ingredients: [
-        { name: 'TOMATO', amount: '2PCS' },
-        { name: 'SALT', amount: '2 TBSP' },
-        { name: 'PASTA', amount: '150 GRAMS' },
-        { name: 'SUGAR', amount: '1 TBSP' },
-        { name: 'PINCH OF BASIL' },
+        { name: 'Tomato', amount: '2 pcs' },
+        { name: 'Salt', amount: '2 tbsp' },
+        { name: 'Pasta', amount: '150 grams' },
+        { name: 'Sugar', amount: '1 tbsp' },
+        { name: 'Pinch of basil' },
       ],
       instructions: [
         'Boil pasta in salted water until al dente.',
@@ -67,13 +66,12 @@ const RECIPES_DATA = {
   mixed: [
     {
       id: '2',
-      title: 'PINEAPPLE PIZZA',
-      color: '#E3F2FD',
+      title: 'Pineapple Pizza',
       ingredients: [
-        { name: 'DICED PINEAPPLE' },
-        { name: 'FLOUR', amount: '150 GRAMS' },
-        { name: 'BACON' }, // Matches item directly in fridge
-        { name: 'YEAST' },
+        { name: 'Diced pineapple' },
+        { name: 'Flour', amount: '150 grams' },
+        { name: 'Bacon' },
+        { name: 'Yeast' },
       ],
       instructions: [
         'Prepare and roll out your pizza dough baseline.',
@@ -87,14 +85,13 @@ const RECIPES_DATA = {
   nonExpiring: [
     {
       id: '3',
-      title: 'EGG TART',
-      color: '#E8F5E9',
+      title: 'Egg Tart',
       ingredients: [
-        { name: 'EGG YOLKS', amount: '4PCS' },
-        { name: 'HEAVY CREAM', amount: '100ML' },
-        { name: 'MILK', amount: '100ML' }, // Will match 'MEIJI MILK'
-        { name: 'SUGAR', amount: '40 GRAMS' },
-        { name: 'PASTRY SHEETS' },
+        { name: 'Egg yolks', amount: '4 pcs' },
+        { name: 'Heavy cream', amount: '100 ml' },
+        { name: 'Milk', amount: '100 ml' },
+        { name: 'Sugar', amount: '40 grams' },
+        { name: 'Pastry sheets' },
       ],
       instructions: [
         'Whisk egg yolks, heavy cream, milk, and sugar together until perfectly smooth.',
@@ -109,7 +106,7 @@ const RECIPES_DATA = {
 
 // --- Helper Inventory Matcher Logic ---
 const checkHasIngredient = (ingredientName: string): boolean => {
-  return CURRENT_FRIDGE_INVENTORY.some(fridgeItem => 
+  return CURRENT_FRIDGE_INVENTORY.some(fridgeItem =>
     fridgeItem.toLowerCase().includes(ingredientName.toLowerCase()) ||
     ingredientName.toLowerCase().includes(fridgeItem.toLowerCase())
   );
@@ -121,14 +118,13 @@ const RecipeCard = ({ recipe }: { recipe: Recipe }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const rotationAnim = useRef(new Animated.Value(0)).current;
 
-  // Calculate matching items dynamically from the fridge array
   const itemsOwned = recipe.ingredients.filter(ing => checkHasIngredient(ing.name)).length;
   const totalItems = recipe.ingredients.length;
 
   const toggleDropdown = () => {
     Animated.timing(rotationAnim, {
       toValue: isExpanded ? 0 : 1,
-      duration: 250,
+      duration: 220,
       useNativeDriver: true,
     }).start();
     setIsExpanded(!isExpanded);
@@ -140,49 +136,42 @@ const RecipeCard = ({ recipe }: { recipe: Recipe }) => {
   });
 
   return (
-    <View style={[styles.card, { backgroundColor: recipe.color }]}>
+    <View style={styles.card}>
       <View style={styles.cardHeader}>
         <Image source={{ uri: recipe.imageUrl }} style={styles.recipeImage} />
         <View style={styles.ingredientInfo}>
-          <Text style={styles.ingredientTitle}>INGREDIENTS:</Text>
+          <Text style={styles.ingredientTitle}>Ingredients</Text>
           {recipe.ingredients.map((ing, idx) => {
             const owned = checkHasIngredient(ing.name);
             return (
-              <Text 
-                key={idx} 
-                style={[
-                  styles.ingredientText, 
-                  { color: owned ? '#1B5E20' : '#555', fontWeight: owned ? '900' : '700' }
-                ]}
-              >
-                {owned ? '✓' : '•'} {ing.name} {ing.amount && ing.amount}
-              </Text>
+              <View key={idx} style={styles.ingredientRow}>
+                <Ionicons
+                  name={owned ? 'checkmark-circle' : 'ellipse-outline'}
+                  size={12}
+                  color={owned ? colors.success : colors.textTertiary}
+                />
+                <Text style={[styles.ingredientText, owned && styles.ingredientTextOwned]}>
+                  {ing.name}{ing.amount ? ` · ${ing.amount}` : ''}
+                </Text>
+              </View>
             );
           })}
         </View>
-        
-        <TouchableOpacity 
-          style={styles.playButtonContainer} 
+
+        <TouchableOpacity
+          style={styles.playButtonContainer}
           onPress={toggleDropdown}
           activeOpacity={0.7}
         >
-          <Animated.View 
-            style={[
-              styles.playButton, 
-              { 
-                backgroundColor: recipe.id === '1' ? '#D32F2F' : recipe.id === '2' ? '#1976D2' : '#388E3C',
-                transform: [{ rotate: rotateValue }]
-              }
-            ]}
-          >
-            <MaterialCommunityIcons name="play" size={20} color="white" />
+          <Animated.View style={[styles.playButton, { transform: [{ rotate: rotateValue }] }]}>
+            <Ionicons name="chevron-forward" size={18} color={colors.primary} />
           </Animated.View>
         </TouchableOpacity>
       </View>
-      
+
       {isExpanded && (
         <View style={styles.instructionsContainer}>
-          <Text style={styles.instructionsTitle}>HOW TO COOK:</Text>
+          <Text style={styles.instructionsTitle}>How to cook</Text>
           {recipe.instructions.map((step, idx) => (
             <Text key={idx} style={styles.stepText}>
               {idx + 1}. {step}
@@ -190,11 +179,11 @@ const RecipeCard = ({ recipe }: { recipe: Recipe }) => {
           ))}
         </View>
       )}
-      
+
       <View style={styles.cardFooter}>
         <Text style={styles.recipeTitle}>{recipe.title}</Text>
         <Text style={styles.progressText}>
-          YOU HAVE {itemsOwned}/{totalItems} ITEMS NEEDED FOR THIS RECIPE
+          You have {itemsOwned}/{totalItems} items needed for this recipe
         </Text>
       </View>
     </View>
@@ -214,21 +203,18 @@ const Recipes = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <MaterialCommunityIcons name="silverware-fork-knife" size={26} color="#D35400" />
-          <Text style={styles.headerTitle}>MY RECIPES</Text>
-        </View>
-        <TouchableOpacity activeOpacity={0.7}>
-           <MaterialCommunityIcons name="refresh" size={26} color="#D35400" />
-        </TouchableOpacity>
-      </View>
+
+      <ScreenHeader
+        title="My Recipes"
+        icon="restaurant-outline"
+        actionIcon="refresh-outline"
+        onActionPress={() => {}}
+      />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <RecipeSection title="FOR NEARLY EXPIRING:" recipes={RECIPES_DATA.nearlyExpiring} />
-        <RecipeSection title="FOR NEARLY EXPIRING + NON EXPIRING:" recipes={RECIPES_DATA.mixed} />
-        <RecipeSection title="FOR NON EXPIRING:" recipes={RECIPES_DATA.nonExpiring} />
+        <RecipeSection title="For Nearly Expiring" recipes={RECIPES_DATA.nearlyExpiring} />
+        <RecipeSection title="For Nearly Expiring + Non Expiring" recipes={RECIPES_DATA.mixed} />
+        <RecipeSection title="For Non Expiring" recipes={RECIPES_DATA.nonExpiring} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -237,126 +223,102 @@ const Recipes = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FDFDFD',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: 'white',
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#D35400',
-    marginLeft: 10,
-    letterSpacing: -0.5,
+    backgroundColor: colors.background,
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 24,
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.xxl,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: spacing.xxl,
   },
   sectionHeader: {
-    fontSize: 13,
-    fontWeight: '900',
-    color: '#D35400',
-    marginBottom: 12,
-    letterSpacing: 0.5,
+    ...type.caption,
+    color: colors.textSecondary,
+    marginBottom: spacing.md,
   },
   card: {
-    borderRadius: 30,
-    padding: 20,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 2,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    ...shadow.sm,
   },
   cardHeader: {
     flexDirection: 'row',
-    marginBottom: 10,
+    marginBottom: spacing.md,
   },
   recipeImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 20,
-    backgroundColor: '#eee',
+    width: 88,
+    height: 88,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceAlt,
   },
   ingredientInfo: {
     flex: 1,
-    marginLeft: 16,
+    marginLeft: spacing.md,
+    gap: 3,
   },
   ingredientTitle: {
-    fontSize: 12,
-    fontWeight: '900',
-    color: '#333',
-    marginBottom: 4,
+    ...type.caption,
+    color: colors.textTertiary,
+    marginBottom: 2,
+  },
+  ingredientRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   ingredientText: {
-    fontSize: 10,
-    lineHeight: 14,
+    ...type.footnote,
+    color: colors.textSecondary,
+  },
+  ingredientTextOwned: {
+    color: colors.textPrimary,
+    fontWeight: '600',
   },
   playButtonContainer: {
     justifyContent: 'center',
-    paddingLeft: 10,
+    paddingLeft: spacing.sm,
   },
   playButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
+    backgroundColor: colors.primarySurface,
     justifyContent: 'center',
     alignItems: 'center',
   },
   instructionsContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
-    borderRadius: 16,
-    padding: 14,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.03)',
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.md,
   },
   instructionsTitle: {
-    fontSize: 11,
-    fontWeight: '900',
-    color: '#263238',
-    marginBottom: 6,
-    letterSpacing: 0.3,
+    ...type.caption,
+    color: colors.textPrimary,
+    marginBottom: spacing.xs,
   },
   stepText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#455A64',
-    lineHeight: 16,
-    marginBottom: 4,
+    ...type.footnote,
+    color: colors.textSecondary,
+    lineHeight: 17,
+    marginBottom: spacing.xs,
   },
   cardFooter: {
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
-    paddingTop: 12,
+    borderTopColor: colors.border,
+    paddingTop: spacing.md,
   },
   recipeTitle: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#333',
-    letterSpacing: -0.5,
+    ...type.title3,
+    color: colors.textPrimary,
   },
   progressText: {
-    fontSize: 10,
-    fontWeight: '900',
-    color: '#666',
-    marginTop: 4,
+    ...type.footnote,
+    color: colors.textSecondary,
+    marginTop: 2,
   },
 });
 

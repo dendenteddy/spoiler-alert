@@ -1,14 +1,12 @@
-import { Ionicons } from "@expo/vector-icons";
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useState, useRef } from "react";
-import { ActivityIndicator, Button, Modal, Text, TouchableOpacity, View, Image } from "react-native";
-import { buttonItemStyles } from "../assets/styles/home.style";
+import { ActivityIndicator, Modal, Text, TouchableOpacity, View, Image, StyleSheet } from "react-native";
 import { ApiError, identifyProduct, IdentifiedProduct } from "../lib/api";
 import ScannedItemCard from "./scannedItemCard";
+import { Button, IconButton } from "./ui";
+import { colors, radius, shadow, spacing, type } from "../constants/theme";
 
 const AddPhoto = () => {
-    const styles = buttonItemStyles();
-
     // Setting up Camera
     const [isCameraVisible, setVisible] = useState(false);
     const [facing, setFacing] = useState<CameraType>('back');
@@ -92,28 +90,26 @@ const AddPhoto = () => {
         setScannedProduct(null);
         resetScanner();
     }
-        
+
     return (
         <View>
-            <TouchableOpacity style={styles.modalButton}  onPress={() => setVisible(true)}>
-                <Text style={styles.buttonText}>+ Scan Item</Text>
-            </TouchableOpacity>
+            <Button title="+ Scan Item" onPress={() => setVisible(true)} />
 
             <Modal
                 id="modal scan item"
                 visible={isCameraVisible}
                 animationType="slide"
             >
-                <View style={{ flex: 1}}>
+                <View style={styles.flex}>
                     {!permission?.granted ? (
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={{fontWeight: "bold"}}>Camera permission is needed</Text>
-                            
-                            <Button onPress={requestPermission} title="Grant Permission" />
-                            <Button onPress={() => setVisible(false)} title="Cancel" />
+                        <View style={styles.permissionContainer}>
+                            <Text style={styles.permissionText}>Camera permission is needed</Text>
+
+                            <Button title="Grant Permission" onPress={requestPermission} style={styles.permissionButton} />
+                            <Button title="Cancel" variant="ghost" onPress={() => setVisible(false)} />
                         </View>
                     ) : (
-                        <View style={{flex: 1}}>
+                        <View style={styles.flex}>
                             {/* Camera */}
                            <CameraView
                                 style={styles.cameraView}
@@ -126,71 +122,51 @@ const AddPhoto = () => {
                                 onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
                             />
                             {looking && (
-                                <View style={{ position: 'absolute', bottom: 100, left: 20, right: 20, backgroundColor: 'white', padding: 16, borderRadius: 10, alignItems: 'center' }}>
-                                    <ActivityIndicator />
-                                    <Text style={{ marginTop: 8 }}>Looking up product...</Text>
+                                <View style={styles.lookupBanner}>
+                                    <ActivityIndicator color={colors.primary} />
+                                    <Text style={styles.lookupBannerText}>Looking up product...</Text>
                                 </View>
                             )}
                             {lookupError && (
-                                <View style={{ position: 'absolute', bottom: 100, left: 20, right: 20, backgroundColor: 'white', padding: 12, borderRadius: 10 }}>
-                                    <Text style={{ color: '#c0392b' }}>{lookupError}</Text>
-                                    <TouchableOpacity onPress={resetScanner} style={{ marginTop: 8 }}>
-                                        <Text style={{ color: 'blue' }}>Scan Again</Text>
+                                <View style={styles.lookupBanner}>
+                                    <Text style={styles.lookupErrorText}>{lookupError}</Text>
+                                    <TouchableOpacity onPress={resetScanner} style={styles.scanAgainButton}>
+                                        <Text style={styles.scanAgainText}>Scan Again</Text>
                                     </TouchableOpacity>
                                 </View>
                             )}
-                                <View style={styles.topButtons}>
-                                     {/* Close Button */}
-                                    <TouchableOpacity style={styles.topButton} onPress={() => setVisible(false)}>
-                                        <View style={styles.buttonText}>
-                                            <Ionicons name="close-sharp" color="#000000" size={20} />
-                                        </View>
-                                    </TouchableOpacity>
 
-                                    {/* Flip Button */}
-                                    <TouchableOpacity style={styles.topButton} onPress={toggleCameraFacing}>
-                                        <View style={styles.buttonText}>
-                                            <Ionicons name="camera-reverse-outline" color="#000" size={24} />
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
+                            <View style={styles.topButtons}>
+                                <IconButton name="close" variant="light" onPress={() => setVisible(false)} />
+                                <IconButton name="camera-reverse-outline" variant="light" onPress={toggleCameraFacing} />
+                            </View>
 
-                                {/* Capture Button */}
-                                <TouchableOpacity style={styles.captureButton} onPress={handlePhoto}>
-                                    <View style={styles.buttonText}>
-                                        <Ionicons name="camera-outline" color="#000" size={30} />
-                                    </View>
-                                </TouchableOpacity>
+                            <TouchableOpacity style={styles.captureButton} onPress={handlePhoto}>
+                                <View style={styles.captureButtonInner} />
+                            </TouchableOpacity>
                         </View>
                     )}
                 </View>
             </Modal>
-            
+
             <Modal
                 id="modal scan preview"
                 visible={isPreviewVisible}
                 animationType="slide"
             >
-                <View style={{ flex: 1, backgroundColor: '#000000' }}>
-                    
+                <View style={styles.previewContainer}>
                     {photo && (
                         <Image
                             source={{ uri: photo }}
-                            style={{ flex: 1, width: "100%"}}
+                            style={styles.previewImage}
                             resizeMode="contain"
                         />
                     )}
 
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', padding: 30 }}>
-                        <TouchableOpacity onPress={handleRetake}>
-                            <Text style={{ color: '#fff', fontSize: 16 }}>Retake</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => setPreviewVisible(false)}>
-                            <Text style={{ color: '#fff', fontSize: 16 }}>Confirm</Text>
-                        </TouchableOpacity>
+                    <View style={styles.previewActions}>
+                        <Button title="Retake" variant="secondary" onPress={handleRetake} style={styles.previewButton} />
+                        <Button title="Confirm" variant="primary" onPress={() => setPreviewVisible(false)} style={styles.previewButton} />
                     </View>
-
                 </View>
             </Modal>
 
@@ -205,5 +181,101 @@ const AddPhoto = () => {
     );
 
 }
+
+const styles = StyleSheet.create({
+    flex: {
+        flex: 1,
+    },
+    permissionContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: spacing.xxl,
+        gap: spacing.md,
+        backgroundColor: colors.background,
+    },
+    permissionText: {
+        ...type.headline,
+        color: colors.textPrimary,
+        textAlign: 'center',
+        marginBottom: spacing.sm,
+    },
+    permissionButton: {
+        width: '100%',
+    },
+    cameraView: {
+        flex: 1,
+    },
+    lookupBanner: {
+        position: 'absolute',
+        bottom: 110,
+        left: spacing.xl,
+        right: spacing.xl,
+        backgroundColor: colors.surface,
+        padding: spacing.lg,
+        borderRadius: radius.lg,
+        alignItems: 'center',
+        ...shadow.lg,
+    },
+    lookupBannerText: {
+        ...type.subhead,
+        color: colors.textSecondary,
+        marginTop: spacing.sm,
+    },
+    lookupErrorText: {
+        ...type.subhead,
+        color: colors.danger,
+        textAlign: 'center',
+    },
+    scanAgainButton: {
+        marginTop: spacing.sm,
+    },
+    scanAgainText: {
+        ...type.bodyMedium,
+        color: colors.primary,
+    },
+    topButtons: {
+        position: 'absolute',
+        top: 56,
+        right: spacing.xl,
+        gap: spacing.md,
+    },
+    captureButton: {
+        width: 76,
+        height: 76,
+        borderRadius: 38,
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+        position: 'absolute',
+        bottom: 40,
+        backgroundColor: 'rgba(255, 251, 245, 0.25)',
+        borderWidth: 3,
+        borderColor: 'rgba(255, 251, 245, 0.9)',
+    },
+    captureButtonInner: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: colors.textInverse,
+    },
+    previewContainer: {
+        flex: 1,
+        backgroundColor: '#000000',
+    },
+    previewImage: {
+        flex: 1,
+        width: '100%',
+    },
+    previewActions: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        padding: spacing.xxl,
+        gap: spacing.md,
+    },
+    previewButton: {
+        flex: 1,
+    },
+});
 
 export default AddPhoto

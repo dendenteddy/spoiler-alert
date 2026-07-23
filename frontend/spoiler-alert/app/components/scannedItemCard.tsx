@@ -2,7 +2,6 @@ import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/dat
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
     Alert,
     Image,
     Modal,
@@ -13,6 +12,8 @@ import {
     View,
 } from "react-native";
 import { ApiError, createItem, IdentifiedProduct } from "../lib/api";
+import { Button } from "./ui";
+import { colors, radius, shadow, spacing, type } from "../constants/theme";
 
 type Props = {
     visible: boolean;
@@ -122,13 +123,19 @@ const ScannedItemCard = ({ visible, product, onClose, onSaved }: Props) => {
                             <Image source={{ uri: product.image_url }} style={styles.image} resizeMode="contain" />
                         ) : (
                             <View style={styles.imagePlaceholder}>
-                                <Ionicons name="fast-food-outline" size={40} color="#999" />
+                                <Ionicons name="fast-food-outline" size={36} color={colors.textTertiary} />
                             </View>
                         )}
                     </View>
 
                     <Text style={styles.label}>Item name</Text>
-                    <TextInput style={styles.input} value={itemName} onChangeText={setItemName} placeholder="Item name" />
+                    <TextInput
+                        style={styles.input}
+                        value={itemName}
+                        onChangeText={setItemName}
+                        placeholder="Item name"
+                        placeholderTextColor={colors.textTertiary}
+                    />
 
                     <Text style={styles.label}>Quantity</Text>
                     <TextInput
@@ -137,12 +144,13 @@ const ScannedItemCard = ({ visible, product, onClose, onSaved }: Props) => {
                         onChangeText={setQuantity}
                         keyboardType="number-pad"
                         placeholder="1"
+                        placeholderTextColor={colors.textTertiary}
                     />
 
                     <Text style={styles.label}>Expiry date</Text>
                     <TouchableOpacity style={[styles.input, styles.pickerRow]} onPress={() => setShowExpiryPicker(true)}>
-                        <Text>{expiryDate ? formatDate(expiryDate) : "Select date"}</Text>
-                        <Ionicons name="calendar-outline" size={18} />
+                        <Text style={styles.pickerText}>{expiryDate ? formatDate(expiryDate) : "Select date"}</Text>
+                        <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
                     </TouchableOpacity>
                     {showExpiryPicker && (
                         <DateTimePicker mode="date" value={expiryDate || new Date()} onChange={handleExpiryChange} />
@@ -154,15 +162,15 @@ const ScannedItemCard = ({ visible, product, onClose, onSaved }: Props) => {
                             style={[styles.input, styles.pickerRow, styles.reminderField]}
                             onPress={() => setShowReminderDatePicker(true)}
                         >
-                            <Text>{reminderAt ? formatDate(reminderAt) : "Date"}</Text>
-                            <Ionicons name="calendar-outline" size={18} />
+                            <Text style={styles.pickerText}>{reminderAt ? formatDate(reminderAt) : "Date"}</Text>
+                            <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.input, styles.pickerRow, styles.reminderField]}
                             onPress={() => setShowReminderTimePicker(true)}
                         >
-                            <Text>{reminderAt ? formatDateTime(reminderAt).split(" ")[1] : "Time"}</Text>
-                            <Ionicons name="time-outline" size={18} />
+                            <Text style={styles.pickerText}>{reminderAt ? formatDateTime(reminderAt).split(" ")[1] : "Time"}</Text>
+                            <Ionicons name="time-outline" size={18} color={colors.textSecondary} />
                         </TouchableOpacity>
                     </View>
                     {showReminderDatePicker && (
@@ -173,16 +181,20 @@ const ScannedItemCard = ({ visible, product, onClose, onSaved }: Props) => {
                     )}
 
                     <View style={styles.buttonRow}>
-                        <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onClose} disabled={submitting}>
-                            <Text style={styles.cancelButtonText}>Cancel</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.button, styles.submitButton]} onPress={handleSubmit} disabled={submitting}>
-                            {submitting ? (
-                                <ActivityIndicator color="#fff" />
-                            ) : (
-                                <Text style={styles.submitButtonText}>Submit</Text>
-                            )}
-                        </TouchableOpacity>
+                        <Button
+                            title="Cancel"
+                            variant="secondary"
+                            onPress={onClose}
+                            disabled={submitting}
+                            style={styles.button}
+                        />
+                        <Button
+                            title="Submit"
+                            variant="primary"
+                            onPress={handleSubmit}
+                            loading={submitting}
+                            style={styles.button}
+                        />
                     </View>
                 </View>
             </View>
@@ -195,17 +207,18 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "rgba(0,0,0,0.5)",
+        backgroundColor: colors.overlay,
     },
     card: {
         width: "88%",
-        backgroundColor: "white",
-        borderRadius: 16,
-        padding: 20,
+        backgroundColor: colors.surface,
+        borderRadius: radius.xl,
+        padding: spacing.xl,
+        ...shadow.lg,
     },
     imageWrapper: {
         alignItems: "center",
-        marginBottom: 12,
+        marginBottom: spacing.md,
     },
     image: {
         width: 120,
@@ -214,25 +227,29 @@ const styles = StyleSheet.create({
     imagePlaceholder: {
         width: 120,
         height: 120,
-        borderRadius: 12,
-        backgroundColor: "#f0f0f0",
+        borderRadius: radius.md,
+        backgroundColor: colors.surfaceAlt,
         justifyContent: "center",
         alignItems: "center",
     },
     label: {
-        fontSize: 13,
-        fontWeight: "600",
-        color: "#333",
-        marginTop: 10,
-        marginBottom: 4,
+        ...type.caption,
+        color: colors.textSecondary,
+        marginTop: spacing.md,
+        marginBottom: spacing.xs,
     },
     input: {
-        borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        height: 44,
+        borderWidth: 1.5,
+        borderColor: colors.border,
+        borderRadius: radius.md,
+        paddingHorizontal: spacing.md,
+        height: 46,
         justifyContent: "center",
+        backgroundColor: colors.surface,
+    },
+    pickerText: {
+        ...type.body,
+        color: colors.textPrimary,
     },
     pickerRow: {
         flexDirection: "row",
@@ -241,7 +258,7 @@ const styles = StyleSheet.create({
     },
     reminderRow: {
         flexDirection: "row",
-        gap: 10,
+        gap: spacing.sm,
     },
     reminderField: {
         flex: 1,
@@ -249,29 +266,11 @@ const styles = StyleSheet.create({
     buttonRow: {
         flexDirection: "row",
         justifyContent: "space-between",
-        marginTop: 20,
-        gap: 12,
+        marginTop: spacing.xxl,
+        gap: spacing.md,
     },
     button: {
         flex: 1,
-        height: 44,
-        borderRadius: 8,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    cancelButton: {
-        backgroundColor: "#eee",
-    },
-    cancelButtonText: {
-        fontWeight: "600",
-        color: "#333",
-    },
-    submitButton: {
-        backgroundColor: "red",
-    },
-    submitButtonText: {
-        fontWeight: "bold",
-        color: "white",
     },
 });
 
